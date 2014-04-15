@@ -1,36 +1,38 @@
 import json
-import MySQLdb;
+import MySQLdb
+import operator
+from db_base import DbBase
 
-class DBAccess:
+class DBAccess(DbBase):
     cur = None
     db = None
 
     def __init__(self):
-        self.db = MySQLdb.connect(host="localhost",user="root",passwd="",db="def")
+        self.db = MySQLdb.connect(host=self.host, user=self.user, passwd=self.passwd, db=self.database)
         self.cur = self.db.cursor();
 
     def save(self, data):
-        sql = "INSERT INTO temp(id , content) values (%s , %s)"
+        sql = "INSERT INTO " + self.table + "(id , content) values (%s , %s)"
         self.cur.execute(sql , (data['key'] , str(data['data']),))
 
     def update(self, data):
-        sql = "UPDATE temp SET content = %s where id = %s"
+        sql = "UPDATE " + self.table + " SET content = %s where id = %s"
         self.cur.execute(sql , (str(data['data']) , data['key'],))
 
-    def execs(self, data):
-        sql = "SELECT content from temp where id = %s"
+    def get(self, data):
+        sql = "SELECT content from " + self.table + " where id = %s"
         self.cur.execute(sql , (data['key'],))
-        dic = self.cur.fetchone()
+        return self.cur.fetchone()
+
+    def execs(self, data):
+        dic = self.get(data)
         if (dic == None):
             self.save(data)
         else:
             self.update(data)
         
-        sql = "SELECT content from temp where id = %s"
-        self.cur.execute(sql , (data['key'],))
-        dic = self.cur.fetchone()
+        dic = self.get(data)
         dic = eval(dic[0])        
-        import operator
         b = sorted(dic.iteritems(), key=operator.itemgetter(1))
         self.db.commit()
         return b[-1][0]
