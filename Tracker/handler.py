@@ -15,6 +15,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
     indexFIle = "index.html"
     routes = {
         "/index.html": ["index.html", 'text/html'],
+        "/other.html": ["other.html", 'text/html'],
         "/": ["index.html", 'text/html'],
         "/sample.js": ["sample.js", "text/javascript"]
     }
